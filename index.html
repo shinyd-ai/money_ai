@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Memo - 간단하고 아름다운 메모장</title>
+    <meta name="description" content="세련된 디자인의 현대적인 웹 메모 애플리케이션입니다.">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Design Tokens */
+            --bg-color: hsl(230, 25%, 8%);
+            --card-bg: hsla(230, 25%, 15%, 0.7);
+            --text-main: hsl(0, 0%, 95%);
+            --text-dim: hsl(230, 10%, 70%);
+            --accent-primary: hsl(265, 85%, 65%);
+            --accent-secondary: hsl(210, 95%, 60%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            --danger: hsl(0, 85%, 65%);
+            --glass-border: hsla(0, 0%, 100%, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(at 0% 0%, hsla(265, 85%, 20%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(210, 95%, 20%, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Input Area */
+        .input-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: hsla(0, 0%, 0%, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 14px 20px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-primary);
+            background: hsla(0, 0%, 0%, 0.3);
+            box-shadow: 0 0 0 4px hsla(265, 85%, 65%, 0.15);
+        }
+
+        .add-btn {
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: 14px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 15px hsla(265, 85%, 65%, 0.3);
+        }
+
+        .add-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px hsla(265, 85%, 65%, 0.4);
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        .add-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+
+        /* Memo List */
+        #memo-list {
+            list-style: none;
+        }
+
+        .memo-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            transition: var(--transition-smooth);
+        }
+
+        .memo-item:hover {
+            transform: translateX(4px);
+            border-color: hsla(0, 0%, 100%, 0.2);
+            background: hsla(230, 25%, 18%, 0.8);
+        }
+
+        .memo-content {
+            font-size: 1rem;
+            color: var(--text-main);
+            flex: 1;
+            margin-right: 15px;
+            word-break: break-all;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition-smooth);
+            opacity: 0.4;
+        }
+
+        .memo-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: hsla(0, 85%, 65%, 0.1);
+        }
+
+        .delete-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--danger);
+        }
+
+        /* Check Button */
+        .check-btn {
+            background: transparent;
+            border: 2px solid var(--glass-border);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .check-btn:hover {
+            border-color: var(--accent-primary);
+            background: hsla(265, 85%, 65%, 0.1);
+        }
+
+        .check-btn.completed {
+            background: var(--gradient-accent);
+            border-color: transparent;
+        }
+
+        .check-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .check-btn.completed svg {
+            opacity: 1;
+        }
+
+        .memo-content.completed {
+            text-decoration: line-through;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(20px) scale(0.95);
+            }
+        }
+
+        .removing {
+            animation: slideOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+            font-weight: 300;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Premium Memo</h1>
+            <p>66챌 짱!!!!</p>
+        </header>
+
+        <div class="input-card">
+            <div class="input-group">
+                <input type="text" id="memo-input" placeholder="새로운 메모를 입력하세요..." autocomplete="off">
+                <button class="add-btn" id="add-btn" aria-label="메모 추가">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <ul id="memo-list">
+            <!-- Memos will appear here -->
+        </ul>
+    </div>
+
+    <script>
+        const memoInput = document.getElementById('memo-input');
+        const addBtn = document.getElementById('add-btn');
+        const memoList = document.getElementById('memo-list');
+
+        // Data Management
+        let memos = JSON
+        function saveMemos() {
+            localStorage.setItem('memos', JSON.stringify(memos));
+        }
+
+        // Initial empty state
+        function checkEmpty() {
+            if (memos.length === 0) {
+                memoList.innerHTML = `<div class="empty-state">아직 작성된 메모가 없습니다.</div>`;
+            } else if (memoList.querySelector('.empty-state')) {
+                memoList.querySelector('.empty-state').remove();
+            }
+        }
+
+        function createMemoElement(memo) {
+            const li = document.createElement('li');
+            li.className = 'memo-item';
+            li.id = memo.id;
+
+            li.innerHTML = `
+                <button class="check-btn ${memo.completed ? 'completed' : ''}" onclick="toggleComplete('${li.id}')" aria-label="완료">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+                <div class="memo-content ${memo.completed ? 'completed' : ''}">${escapeHTML(memo.text)}</div>
+                <button class="delete-btn" onclick="deleteMemo('${li.id}')" aria-label="삭제">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+            `;
+            return li;
+        }
+
+        function renderMemos() {
+            memoList.innerHTML = '';
+            checkEmpty();
+            // Render in reverse order to show newest first (matches prepend logic)
+            [...memos].reverse().forEach(memo => {
+                memoList.appendChild(createMemoElement(memo));
+            });
+        }
+
+        function addMemo() {
+            const text = memoInput.value.trim();
+            if (!text) return;
+
+            const newMemo = {
+                id: 'memo-' + Date.now(),
+                text: text,
+                completed: false
+            };
+
+            memos.push(newMemo);
+            saveMemos();
+
+            // UI update
+            const emptyMsg = memoList.querySelector('.empty-state');
+            if (emptyMsg) emptyMsg.remove();
+
+            memoList.prepend(createMemoElement(newMemo));
+
+            memoInput.value = '';
+            memoInput.focus();
+        }
+
+        function deleteMemo(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            el.classList.add('removing');
+            el.addEventListener('animationend', () => {
+                el.remove();
+                memos = memos.filter(m => m.id !== id);
+                saveMemos();
+                checkEmpty();
+            });
+        }
+
+        function toggleComplete(id) {
+            const memo = memos.find(m => m.id === id);
+            if (!memo) return;
+
+            memo.completed = !memo.completed;
+            saveMemos();
+
+            const el = document.getElementById(id);
+            const checkBtn = el.querySelector('.check-btn');
+            const memoContent = el.querySelector('.memo-content');
+
+            checkBtn.classList.toggle('completed');
+            memoContent.classList.toggle('completed');
+        }
+
+        function escapeHTML(str) {
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        addBtn.addEventListener('click', addMemo);
+        memoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addMemo();
+        });
+
+        // Initialize
+        renderMemos();
+    </script>
+</body>
+
+</html>
