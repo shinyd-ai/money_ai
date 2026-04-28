@@ -364,14 +364,17 @@
         </ul>
     </div>
 
+    <!-- Configuration -->
+    <script src="config.js"></script>
+
     <script>
         const memoInput = document.getElementById('memo-input');
         const addBtn = document.getElementById('add-btn');
         const memoList = document.getElementById('memo-list');
 
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://pgotfkeewmfjfjifvkyv.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnb3Rma2Vld21mamZqaWZ2a3l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjA2MzAsImV4cCI6MjA5MjkzNjYzMH0.oRHPyDV11eCkVo-siZTqYcUQipL8UC4iBcSIInfWXIw';
+        // Supabase Configuration from config.js
+        const SUPABASE_URL = SUPABASE_CONFIG.URL;
+        const SUPABASE_KEY = SUPABASE_CONFIG.KEY;
         // Use a different name for the client to avoid conflict with the global 'supabase' object
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
