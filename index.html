@@ -279,13 +279,31 @@
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateX(-10px);
+                transform: translateY(20px) scale(0.95);
             }
 
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0) scale(1);
             }
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(10px);
+            }
+            70% {
+                transform: scale(1.02) translateY(-2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .new-memo {
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
         }
 
         @keyframes slideOut {
@@ -445,7 +463,9 @@
             const emptyMsg = memoList.querySelector('.empty-state');
             if (emptyMsg) emptyMsg.remove();
 
-            memoList.prepend(createMemoElement(newMemo));
+            const newEl = createMemoElement(newMemo);
+            newEl.classList.add('new-memo'); // Add special animation class
+            memoList.prepend(newEl);
 
             memoInput.value = '';
             memoInput.focus();
