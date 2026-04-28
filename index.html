@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -348,9 +351,33 @@
         const addBtn = document.getElementById('add-btn');
         const memoList = document.getElementById('memo-list');
 
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://pgotfkeewmfjfjifvkyv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnb3Rma2Vld21mamZqaWZ2a3l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjA2MzAsImV4cCI6MjA5MjkzNjYzMH0.oRHPyDV11eCkVo-siZTqYcUQipL8UC4iBcSIInfWXIw';
+        // Use a different name for the client to avoid conflict with the global 'supabase' object
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         // Data Management
-        let memos = JSON
-        function saveMemos() {
+        let memos = [];
+
+        async function fetchMemos() {
+            const { data, error } = await _supabase
+                .from('memos')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching memos:', error);
+                // Fallback to localStorage if Supabase fails (optional)
+                memos = JSON.parse(localStorage.getItem('memos')) || [];
+            } else {
+                memos = data;
+            }
+            renderMemos();
+        }
+
+        async function saveMemos() {
+            // Local storage backup
             localStorage.setItem('memos', JSON.stringify(memos));
         }
 
@@ -396,18 +423,23 @@
             });
         }
 
-        function addMemo() {
+        async function addMemo() {
             const text = memoInput.value.trim();
             if (!text) return;
 
-            const newMemo = {
-                id: 'memo-' + Date.now(),
-                text: text,
-                completed: false
-            };
+            const { data, error } = await _supabase
+                .from('memos')
+                .insert([{ text: text, completed: false }])
+                .select();
 
-            memos.push(newMemo);
-            saveMemos();
+            if (error) {
+                console.error('Error adding memo:', error);
+                alert('메모 저장에 실패했습니다.');
+                return;
+            }
+
+            const newMemo = data[0];
+            memos.unshift(newMemo);
 
             // UI update
             const emptyMsg = memoList.querySelector('.empty-state');
@@ -417,26 +449,51 @@
 
             memoInput.value = '';
             memoInput.focus();
+            saveMemos();
         }
 
-        function deleteMemo(id) {
+        async function deleteMemo(id) {
             const el = document.getElementById(id);
             if (!el) return;
+
+            const { error } = await _supabase
+                .from('memos')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error deleting memo:', error);
+                alert('메모 삭제에 실패했습니다.');
+                return;
+            }
 
             el.classList.add('removing');
             el.addEventListener('animationend', () => {
                 el.remove();
-                memos = memos.filter(m => m.id !== id);
+                memos = memos.filter(m => m.id === id ? false : true); // simple filter
                 saveMemos();
                 checkEmpty();
             });
         }
 
-        function toggleComplete(id) {
-            const memo = memos.find(m => m.id === id);
+        async function toggleComplete(id) {
+            const memo = memos.find(m => m.id == id);
             if (!memo) return;
 
-            memo.completed = !memo.completed;
+            const newStatus = !memo.completed;
+
+            const { error } = await _supabase
+                .from('memos')
+                .update({ completed: newStatus })
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error updating memo:', error);
+                alert('상태 업데이트에 실패했습니다.');
+                return;
+            }
+
+            memo.completed = newStatus;
             saveMemos();
 
             const el = document.getElementById(id);
@@ -459,7 +516,7 @@
         });
 
         // Initialize
-        renderMemos();
+        fetchMemos();
     </script>
 </body>
 
